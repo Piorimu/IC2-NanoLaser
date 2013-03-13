@@ -33,7 +33,7 @@ implements IThrowableEntity
 
 	public static Block[] unmineableBlocks = { Block.brick, Block.lavaMoving, Block.lavaStill, Block.waterMoving, Block.waterStill, Block.bedrock, Block.glass };
 	public static final int netId = 160;
-	public static final double laserSpeed = 2.0D;
+	public static final double laserSpeed = 2.5D;
 	public EntityLiving owner;
 	public boolean headingSet = false;
 	public boolean smelt = false;
@@ -126,8 +126,8 @@ implements IThrowableEntity
 
 	public void onUpdate()
 	{
-		setFire(0);
 		super.onUpdate();
+		setFire(0);
 
 		this.ticksInAir += 1;
 

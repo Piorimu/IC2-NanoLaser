@@ -35,24 +35,24 @@ implements INetworkItemEventListener{
 	private static final int EventShotScatter = 5;
 	private static final int EventShotExplosive = 6;
 
-	private static final int[] AssultDamageTable = {
-		5, 10,
-		15, 20,
-		30, 15};
-
+	private static final int[] AssaultDamageTable = {
+		5, 5,
+		15, 12,
+		30, 8};
+	
 	private static final int[] SpreadDamageTable = {
 		8, 20};	
-
+	
 	private static final int[] SniperDamageTable = {
-		10, 5,
-		15, 10,
+		10, 8,
+		25, 15,
 		40, 40,
 		60, 50,
-		120, 50};
-
+		120, 30};
+	
 	private static final int[] FlameDamageTable = {
 		30, 8};
-
+	
 	private static final int[] ExplosionDamageTable = {
 		30, 20};
 
@@ -81,11 +81,11 @@ implements INetworkItemEventListener{
 		
 		// shift + mkey
 		if ( player.isSneaking() && isMKey && (time - nbtData.getInteger( "changeTime" )) > 500) {
-			// change mining or assult
+			// change mining or assault
 			int laserMode = nbtData.getInteger("laserMode");
 			laserMode = ( laserMode + 1 ) % 2;
 			nbtData.setInteger("laserMode", laserMode);
-			String laser = new String[] { "Assult", "Mining"}[laserMode];
+			String laser = new String[] { "Assault", "Mining"}[laserMode];
 			player.addChatMessage("Change to " + laser + " mode");
 			nbtData.setInteger("laserSetting", 0);
 			player.worldObj.playSoundAtEntity(player, "pio.cursor", 1f , 1.0F);			
@@ -119,21 +119,21 @@ implements INetworkItemEventListener{
 				laserSetting = (laserSetting + 1) % 7;
 				nbtData.setInteger("laserSetting", laserSetting);
 
-				String laser = new String[] { "Assult", "Spread", "Sniper", "Flame", "Explosion", "Lightning", "Freezing"}[laserSetting];
+				String laser = new String[] { "Assault", "Spread", "Sniper", "Flame", "Explosion", "Lightning", "Freezing"}[laserSetting];
 				entityplayer.addChatMessage("Laser Mode: " + laser);
 				world.playSoundAtEntity(entityplayer, "pio.cursor", 1f , 1.0F);
 			} else {
-				int consume = new int[] { 500, 3000, 5000, 1000, 12500, 7500, 5000 }[laserSetting];
+				int consume = new int[] { 1000, 3000, 5000, 1000, 12500, 7500, 5000 }[laserSetting];
 
 				if( Loader.isModLoaded("IC2") ){
 					if (!ElectricItem.use(itemstack, consume, entityplayer)) return itemstack;
 				}
 
-				EntityNanoLaserAssult b;
+				EntityNanoLaserAssault b;
 				switch (laserSetting) {
 				case 0:
-					b = new EntityNanoLaserAssult(world, entityplayer, 50f, 10.0F, false);
-					b.DamageTable = AssultDamageTable;
+					b = new EntityNanoLaserAssault(world, entityplayer, 50f, 10.0F, false);
+					b.DamageTable = AssaultDamageTable;
 
 					world.spawnEntityInWorld(b);
 					world.playSoundAtEntity(entityplayer, "pio.senor", 1f , 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F));
@@ -141,13 +141,13 @@ implements INetworkItemEventListener{
 					break;
 				case 1:
 					for (int i = 0; i <= 10; i++) {
-						b = new EntityNanoLaserAssult(world, entityplayer, 16f, 20.0F, false, entityplayer.rotationYaw - 15.0f + 30.0F * world.rand.nextFloat(), entityplayer.rotationPitch - 15.0f  + 30.0F * world.rand.nextFloat());
+						b = new EntityNanoLaserAssault(world, entityplayer, 16f, 2.0F, false, entityplayer.rotationYaw - 15.0f + 30.0F * world.rand.nextFloat(), entityplayer.rotationPitch - 15.0f  + 30.0F * world.rand.nextFloat());
 						b.DamageTable = SpreadDamageTable;
 
 						world.spawnEntityInWorld(b);
 					}
 					for (int i = 0; i <= 5; i++) {
-						b = new EntityNanoLaserAssult(world, entityplayer, 16f, 20.0F, false, entityplayer.rotationYaw - 5.0f + 10.0F * world.rand.nextFloat(), entityplayer.rotationPitch - 5.0f  + 10.0F * world.rand.nextFloat());
+						b = new EntityNanoLaserAssault(world, entityplayer, 16f, 2.0F, false, entityplayer.rotationYaw - 5.0f + 10.0F * world.rand.nextFloat(), entityplayer.rotationPitch - 5.0f  + 10.0F * world.rand.nextFloat());
 						b.DamageTable = SpreadDamageTable;
 
 						world.spawnEntityInWorld(b);
@@ -157,7 +157,7 @@ implements INetworkItemEventListener{
 
 					break;
 				case 2:
-					b = new EntityNanoLaserAssult(world, entityplayer, 120f, 10.0F, false);
+					b = new EntityNanoLaserAssault(world, entityplayer, 120f, 2.0F, false);
 					b.DamageTable = SniperDamageTable;
 
 					world.spawnEntityInWorld(b);
@@ -165,21 +165,21 @@ implements INetworkItemEventListener{
 
 					break;
 				case 3:
-					b = new EntityNanoLaserAssult(world, entityplayer, 30f, 8.0F, false, true);
+					b = new EntityNanoLaserAssault(world, entityplayer, 30f, 2.0F, false, true);
 					b.DamageTable = FlameDamageTable;
 
 					world.spawnEntityInWorld(b);
 					world.playSoundAtEntity(entityplayer, "pio.sefire", 1f , 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F));
 					break;
 				case 4:
-					b = new EntityNanoLaserAssult(world, entityplayer, 30f, 20.0F, true);
+					b = new EntityNanoLaserAssault(world, entityplayer, 30f, 2.0F, true);
 					b.DamageTable = ExplosionDamageTable;
 
 					world.spawnEntityInWorld(b);
 					world.playSoundAtEntity(entityplayer, "pio.seexp", 1f , 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F));
 					break;
 				case 5:
-					b = new EntityNanoLaserAssult(world, entityplayer, 50f, 5.0F, false);
+					b = new EntityNanoLaserAssault(world, entityplayer, 50f, 2.0F, false);
 					b.lightning = true;
 					b.DamageTable = FlameDamageTable;
 
@@ -187,7 +187,7 @@ implements INetworkItemEventListener{
 					world.playSoundAtEntity(entityplayer, "pio.sefire", 1f , 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F));
 					break;
 				case 6:
-					b = new EntityNanoLaserAssult(world, entityplayer, 30f, 5.0F, false);
+					b = new EntityNanoLaserAssault(world, entityplayer, 30f, 2.0F, false);
 					b.freeging = true;
 					b.DamageTable = FlameDamageTable;
 
@@ -254,6 +254,33 @@ implements INetworkItemEventListener{
 		}
 
 		return itemstack;
+	}
+	
+	public boolean onItemUseFirst(ItemStack itemstack, EntityPlayer entityPlayer, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+	{
+		if (world.isRemote) return false;
+
+		boolean isMKey = false;
+		if( Loader.isModLoaded( "IC2" ) ){
+			isMKey = IC2.keyboard.isModeSwitchKeyDown( entityPlayer );
+		}else{
+			isMKey = PioKeyHandler.keyTable[0];
+		}
+		
+		if ((!isMKey) && (nbtData.getInteger("laserMode") == 1) && (nbtData.getInteger("laserSetting") == 3)) {
+			if (Math.abs(entityPlayer.posY + entityPlayer.getEyeHeight() - 0.1D - (y + 0.5D)) < 1.5D) {
+				if( Loader.isModLoaded("IC2") ){
+					if (ElectricItem.use(itemstack, 3000, entityPlayer)) {
+						world.spawnEntityInWorld(new EntityNanoLaserMining(world, entityPlayer, 20f, 5.0F, 2147483647, false, entityPlayer.rotationYaw, 0.0D, y + 0.5D));
+						world.playSoundAtEntity(entityPlayer, "pio.selong", 1f , 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F));
+					}
+				}
+			}
+			else entityPlayer.addChatMessage( "Mining laser aiming angle too steep");
+
+		}
+
+		return false;
 	}
 
 	public String getTextureFile()

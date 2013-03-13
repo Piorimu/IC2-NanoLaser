@@ -8,7 +8,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTool;
 import net.minecraft.item.crafting.RecipesCrafting;
+import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.Property;
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -27,7 +29,7 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 
 import ic2.api.*;
 
-@Mod(modid="NanoLaser", name="Nano Laser", version="0.9.0")
+@Mod(modid="NanoLaser", name="Nano Laser", version="1.1.0")
 @NetworkMod(clientSideRequired=true, serverSideRequired=false)
 public class NanoLaser {
 
@@ -39,22 +41,41 @@ public class NanoLaser {
         @SidedProxy(clientSide="pio.NanoLaser.client.ClientProxy", serverSide="pio.NanoLaser.CommonProxy")
         public static CommonProxy proxy;
         
-        private final static int useItemID = 1600;
-        private final static int useEntiID = 160;
+        private static int useItemID = 1600;
+        private static int useEntiID = 160;
         
-        private final static Item itemNanoLaserA = new ItemNanoLaserA(useItemID, 0);
-        private final static Item itemNanoLaserM = new ItemNanoLaserM(useItemID + 1, 1);
-        private final static Item itemQuantumLaser = new ItemQuantumLaser(useItemID + 2, 2);
+        private static Item itemNanoLaserA;
+        private static Item itemNanoLaserM;
+        private static Item itemQuantumLaser;
         
         @PreInit
         public void preInit(FMLPreInitializationEvent event) {
-                // Stub Method
+            // Stub Method
         	MinecraftForge.EVENT_BUS.register( new PioEventSounds() );
         	
+        	Configuration config = new Configuration(event.getSuggestedConfigurationFile());
+
+            config.load();
+        	itemNanoLaserA = new ItemNanoLaserA(config.getItem("NanoLaserAssault", 29000).getInt(), 0);        
+        	itemNanoLaserM = new ItemNanoLaserM(config.getItem("NanoLaserMining", 29001).getInt(), 1);    
+        	itemQuantumLaser = new ItemQuantumLaser(config.getItem("QuantumLaser", 29002).getInt(), 2);
+        	
+        	//IconTexture address
+        	Property IconTexP = config.get(Configuration.CATEGORY_GENERAL, "x32Texture", false);
+            
+            // Here we add a comment to our new property.
+            IconTexP.comment = "false : default  true : x32";
+            
+            if( IconTexP.getBoolean(false) ){
+            	CommonProxy.NL_ITEMPNG = "/pio/NanoLaser/sprites/NanoLaserItems32x.png";
+            }
+        	
 			//add item
-			LanguageRegistry.addName(itemNanoLaserA, "Nano Laser Assult");
+			LanguageRegistry.addName(itemNanoLaserA, "Nano Laser Assault");
 			LanguageRegistry.addName(itemNanoLaserM, "Nano Laser Mining");
 			LanguageRegistry.addName(itemQuantumLaser, "Quantum Laser");
+			
+			config.save();
         }
         
         @Init
@@ -62,7 +83,7 @@ public class NanoLaser {
 			proxy.registerRenderers();
 			
 			// return: entClass, entName, ID, mod, trackingRange, updateFrequency, sendVelocityUpdates // Just like before, just called
-			EntityRegistry.registerModEntity(EntityNanoLaserAssult.class, "EntityNanoLaserAssult", 
+			EntityRegistry.registerModEntity(EntityNanoLaserAssault.class, "EntityNanoLaserAssault", 
 					useEntiID, this, 512, 1, true);
 			EntityRegistry.registerModEntity(EntityNanoLaserMining.class, "EntityNanoLaserMining", 
 					useEntiID + 1, this, 512, 1, true);
@@ -126,17 +147,17 @@ public class NanoLaser {
 			    		'G', gsdust,
 			    		'L', new ItemStack(Item.bucketWater));
 			    
-				GameRegistry.addRecipe( new ItemStack( itemNanoLaserA ),
+				GameRegistry.addRecipe( new ItemStack( itemNanoLaserM ),
 			    		"D","G","W",
 			    		'D', diamond,
 			    		'G', gsdust,
 			    		'W', new ItemStack(Item.bucketLava));
 				
 				GameRegistry.addRecipe( new ItemStack( itemQuantumLaser ),
-			    		"D","G","W",
+			    		"D","A","M",
 			    		'D', bdiamond,
-			    		'G', gsdust,
-			    		'W', new ItemStack(Item.bucketLava));				
+			    		'A', new ItemStack( itemNanoLaserA ),
+			    		'M', new ItemStack( itemNanoLaserM ));				
 			}
         }
 }

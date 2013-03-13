@@ -11,7 +11,7 @@ public class ClientProxy extends CommonProxy {
             MinecraftForgeClient.preloadTexture(NL_ITEMPNG);
             
             //Entity Render
-            RenderingRegistry.registerEntityRenderingHandler(EntityNanoLaserAssult.class, new RenderNanoLaserAssult());
+            RenderingRegistry.registerEntityRenderingHandler(EntityNanoLaserAssault.class, new RenderNanoLaserAssault());
             RenderingRegistry.registerEntityRenderingHandler(EntityNanoLaserMining.class, new RenderNanoLaserMining());
     }
     

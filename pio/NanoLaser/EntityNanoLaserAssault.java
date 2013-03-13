@@ -25,7 +25,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
-public class EntityNanoLaserAssult extends Entity
+public class EntityNanoLaserAssault extends Entity
 implements IThrowableEntity
 {
 	public float maxRange = 0.0F;
@@ -46,7 +46,7 @@ implements IThrowableEntity
 	
 	public int[] DamageTable = { 10, 10 };
 
-	public EntityNanoLaserAssult(World world, double x, double y, double z)
+	public EntityNanoLaserAssault(World world, double x, double y, double z)
 	{
 		super(world);
 
@@ -57,27 +57,27 @@ implements IThrowableEntity
 		setPosition(x, y, z);
 	}
 
-	public EntityNanoLaserAssult(World world) {
+	public EntityNanoLaserAssault(World world) {
 		this(world, 0.0D, 0.0D, 0.0D);
 	}
 
-	public EntityNanoLaserAssult(World world, EntityLiving entityliving, float range, float power, boolean explosive)
+	public EntityNanoLaserAssault(World world, EntityLiving entityliving, float range, float power, boolean explosive)
 	{
 		this(world, entityliving, range, power, explosive, entityliving.rotationYaw, entityliving.rotationPitch);
 	}
 
-	public EntityNanoLaserAssult(World world, EntityLiving entityliving, float range, float power, boolean explosive, boolean smelt)
+	public EntityNanoLaserAssault(World world, EntityLiving entityliving, float range, float power, boolean explosive, boolean smelt)
 	{
 		this(world, entityliving, range, power, explosive, entityliving.rotationYaw, entityliving.rotationPitch);
 		this.smelt = smelt;
 	}
 
-	public EntityNanoLaserAssult(World world, EntityLiving entityliving, float range, float power, boolean explosive, double yawDeg, double pitchDeg)
+	public EntityNanoLaserAssault(World world, EntityLiving entityliving, float range, float power, boolean explosive, double yawDeg, double pitchDeg)
 	{
 		this(world, entityliving, range, power, explosive, yawDeg, pitchDeg, entityliving.posY + entityliving.getEyeHeight() - 0.1D);
 	}
 
-	public EntityNanoLaserAssult(World world, EntityLiving entityliving, float range, float power, boolean explosive, double yawDeg, double pitchDeg, double y)
+	public EntityNanoLaserAssault(World world, EntityLiving entityliving, float range, float power, boolean explosive, double yawDeg, double pitchDeg, double y)
 	{
 		super(world);
 
@@ -106,6 +106,7 @@ implements IThrowableEntity
 
 	protected void entityInit()
 	{
+		this.dataWatcher.addObject(8, new Integer( 0 ));	//isHit
 	}
 
 	public void setLaserHeading(double motionX, double motionY, double motionZ, double speed)
@@ -131,8 +132,8 @@ implements IThrowableEntity
 
 	public void onUpdate()
 	{
-		setFire(0);
 		super.onUpdate();
+		setFire(0);
 
 		this.ticksInAir += 1;
 
@@ -176,12 +177,7 @@ implements IThrowableEntity
 		if (entity != null) movingobjectposition = new MovingObjectPosition(entity);
 
 		if ((movingobjectposition != null) && (!worldObj.isRemote)) {
-			if (this.explosive) {
-				explode();
-				kill();
-
-				return;
-			}
+			setHit(true);
 
 			if (movingobjectposition.entityHit != null) {
 				double mx = movingobjectposition.hitVec.xCoord - this.posX;
@@ -196,12 +192,20 @@ implements IThrowableEntity
 					if( this.smelt ){
 						entity.setFire( 50 );
 					}
-					if( freeging ){
-						((EntityLiving)entity).addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 20000, 5));
+					if( lightning ){
+						worldObj.addWeatherEffect(new EntityLightningBolt(worldObj, movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord));
+					}
+					if( entity instanceof EntityLiving ){
+						if( freeging ){
+							((EntityLiving)entity).addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 20000, 5));
+						}
 					}
 					if ((movingobjectposition.entityHit.attackEntityFrom(DamageSource.causeMobDamage(this.owner).setProjectile(), damage)) && 
 							((this.owner instanceof EntityPlayer)))
 					{
+						entity.motionX += this.motionX * power / 50;
+						entity.motionY += this.motionY * power / 100;
+						entity.motionZ += this.motionZ * power / 50;
 						/*
 	            if ((((movingobjectposition.entityHit instanceof pp)) && (((pp)movingobjectposition.entityHit).aU() <= 0)) || (((movingobjectposition.entityHit instanceof pn)) && ((((pn)movingobjectposition.entityHit).a instanceof pp)) && (((EntityLiving)((pn)movingobjectposition.entityHit).a).aU() <= 0))) {
 	              IC2.achievements.issueAchievement((qx)this.owner, "killDragonMiningLaser");
@@ -209,10 +213,17 @@ implements IThrowableEntity
 					}
 
 				}
+			}else{	
+				if (this.explosive) {
+					explode();
+				}
+				if( freeging ){
+					int blockid = freezingBlock( movingobjectposition.blockX, movingobjectposition.blockY, movingobjectposition.blockZ);
+				}
 				
 				kill();
 				return;
-			} 
+			}
 		}
 		
 		if( (!worldObj.isRemote) ){
@@ -220,7 +231,7 @@ implements IThrowableEntity
 				worldObj.addWeatherEffect(new EntityLightningBolt(worldObj, posX, posY, posZ));
 			}
 			
-			if( freeging && ticksInAir >= 2 ){
+			if( freeging ){
 				//dda
 				int x1, x2;
 				int y1, y2;
@@ -311,13 +322,11 @@ implements IThrowableEntity
 				
 				//999freezing999
 				for( int i = 0; i < pointnum; ++i ){
-					int blockid = worldObj.getBlockId( cPosX[i], cPosY[i], cPosZ[i]);
-					System.out.println("x:" + cPosX[i] + " y:" + cPosY[i] + " z:" + cPosZ[i] + " id:" + blockid );
-					if( blockid == 8 || blockid == 9 ){
-						this.worldObj.setBlockWithNotify(cPosX[i], cPosY[i], cPosZ[i], 79);
-						System.out.println("freeze");
-					}	
-					
+					int blockid = freezingBlock( cPosX[i], cPosY[i], cPosZ[i]);
+					if( blockid == 49 ){
+						kill();
+						return;
+					}
 				}
 			}
 		}
@@ -326,7 +335,11 @@ implements IThrowableEntity
 
 		this.range = (float)(this.range - Math.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ));
 		
-		if ( !worldObj.isRemote && ((this.range < 1.0F) || (this.power <= 0.0F) )) {
+		if( power > 2.0f ){
+			power -= 0.4f;
+		}
+		
+		if ( !worldObj.isRemote && ((this.range < 1.0F) )) {
 			if (this.explosive) explode();
 
 			kill();
@@ -340,11 +353,22 @@ implements IThrowableEntity
 
 	public void writeEntityToNBT(NBTTagCompound nbttagcompound)
 	{
+		nbttagcompound.setBoolean( "isHit", this.isHit() );
 	}
 
 	public void readEntityFromNBT(NBTTagCompound nbttagcompound)
 	{
+		setHit( nbttagcompound.getBoolean( "isHit" ) );
 	}
+	
+	public void setHit( boolean h ){
+		this.dataWatcher.updateObject(8, h ? 1 : 0);
+	}
+	
+    public boolean isHit()
+    {
+        return this.dataWatcher.getWatchableObjectInt(8) != 0;
+    }	
 
 	public float getShadowSize()
 	{
@@ -361,6 +385,23 @@ implements IThrowableEntity
 			explosion.doExplosionA();
 			explosion.doExplosionB(true);*/
 		}
+	}
+	
+	public int freezingBlock(int x, int y ,int z){
+		int blockid = worldObj.getBlockId( x, y, z);
+		System.out.println("x:" + x + " y:" + y + " z:" + z + " id:" + blockid );
+		if( blockid == 8 || blockid == 9 ){	//water
+			this.worldObj.setBlockWithNotify(x, y, z, 79);
+			System.out.println("freeze");
+			
+			blockid = 79;
+		}else if( blockid == 10 || blockid == 11 ){	//lava
+			this.worldObj.setBlockWithNotify(x, y, z, 49);
+			System.out.println("freeze");
+			
+			blockid = 49;
+		}
+		return blockid;
 	}
 	
 	public int getDamage(){

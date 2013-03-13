@@ -35,17 +35,17 @@ implements INetworkItemEventListener{
 	private static final int EventShotScatter = 5;
 	private static final int EventShotExplosive = 6;
 	
-	private static final int[] AssultDamageTable = {
-		5, 10,
-		15, 20,
-		30, 15};
+	private static final int[] AssaultDamageTable = {
+		5, 5,
+		15, 12,
+		30, 8};
 	
 	private static final int[] SpreadDamageTable = {
 		8, 20};	
 	
 	private static final int[] SniperDamageTable = {
-		10, 5,
-		15, 10,
+		10, 8,
+		25, 15,
 		40, 40,
 		60, 50,
 		100, 30};
@@ -55,17 +55,16 @@ implements INetworkItemEventListener{
 	
 	private static final int[] ExplosionDamageTable = {
 		30, 20};
-	
 
 	public ItemNanoLaserA(int id, int sprite)
 	{
-		super(id, sprite, EnumToolMaterial.EMERALD, 500);
+		super(id, sprite, EnumToolMaterial.EMERALD, 1000);
 
 		this.maxCharge = 400000;
 		this.transferLimit = 1000;
 		this.tier = 2;
 
-		this.setItemName("Nano Laser Assult");
+		this.setItemName("Nano Laser Assault");
 	}
 
 	public ItemStack onItemRightClick(ItemStack itemstack, World world, EntityPlayer entityplayer)
@@ -85,21 +84,21 @@ implements INetworkItemEventListener{
 			laserSetting = (laserSetting + 1) % 5;
 			nbtData.setInteger("laserSetting", laserSetting);
 
-			String laser = new String[] { "Assult", "Spread", "Sniper", "Flame", "Explosion"}[laserSetting];
+			String laser = new String[] { "Assault", "Spread", "Sniper", "Flame", "Explosion"}[laserSetting];
 			entityplayer.addChatMessage("Laser Mode: " + laser);
 			world.playSoundAtEntity(entityplayer, "pio.cursor", 1f , 1.0F);
 		} else {
-			int consume = new int[] { 500, 2000, 5000, 1000, 12500 }[laserSetting];
+			int consume = new int[] { 1000, 2000, 5000, 1000, 12500 }[laserSetting];
 
 			if( Loader.isModLoaded("IC2") ){
 				if (!ElectricItem.use(itemstack, consume, entityplayer)) return itemstack;
 			}
 			
-			EntityNanoLaserAssult b;
+			EntityNanoLaserAssault b;
 			switch (laserSetting) {
 			case 0:
-				b = new EntityNanoLaserAssult(world, entityplayer, 50f, 10.0F, false);
-				b.DamageTable = AssultDamageTable;
+				b = new EntityNanoLaserAssault(world, entityplayer, 50f, 8.0F, false);
+				b.DamageTable = AssaultDamageTable;
 				
 				world.spawnEntityInWorld(b);
 				world.playSoundAtEntity(entityplayer, "pio.senor", 1f , 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F));
@@ -107,13 +106,13 @@ implements INetworkItemEventListener{
 				break;
 			case 1:
 				for (int i = 0; i <= 5; i++) {
-					b = new EntityNanoLaserAssult(world, entityplayer, 16f, 20.0F, false, entityplayer.rotationYaw - 4.0f + 8.0F * world.rand.nextFloat(), entityplayer.rotationPitch - 3.0f  + 7.0F * world.rand.nextFloat());
+					b = new EntityNanoLaserAssault(world, entityplayer, 16f, 2.0F, false, entityplayer.rotationYaw - 4.0f + 8.0F * world.rand.nextFloat(), entityplayer.rotationPitch - 3.0f  + 7.0F * world.rand.nextFloat());
 					b.DamageTable = SpreadDamageTable;
 					
 					world.spawnEntityInWorld(b);
 				}
 				for (int i = 0; i <= 5; i++) {
-					b = new EntityNanoLaserAssult(world, entityplayer, 16f, 20.0F, false, entityplayer.rotationYaw - 12.0f + 24.0F * world.rand.nextFloat(), entityplayer.rotationPitch - 10.0f  + 20.0F * world.rand.nextFloat());
+					b = new EntityNanoLaserAssault(world, entityplayer, 16f, 2.0F, false, entityplayer.rotationYaw - 12.0f + 24.0F * world.rand.nextFloat(), entityplayer.rotationPitch - 10.0f  + 20.0F * world.rand.nextFloat());
 					b.DamageTable = SpreadDamageTable;
 					
 					world.spawnEntityInWorld(b);
@@ -123,7 +122,7 @@ implements INetworkItemEventListener{
 
 				break;
 			case 2:
-				b = new EntityNanoLaserAssult(world, entityplayer, 100f, 10.0F, false);
+				b = new EntityNanoLaserAssault(world, entityplayer, 100f, 2.0F, false);
 				b.DamageTable = SniperDamageTable;
 				
 				world.spawnEntityInWorld(b);
@@ -131,14 +130,14 @@ implements INetworkItemEventListener{
 
 				break;
 			case 3:
-				b = new EntityNanoLaserAssult(world, entityplayer, 30f, 8.0F, false, true);
+				b = new EntityNanoLaserAssault(world, entityplayer, 30f, 2.0F, false, true);
 				b.DamageTable = FlameDamageTable;
 				
 				world.spawnEntityInWorld(b);
 				world.playSoundAtEntity(entityplayer, "pio.sefire", 1f , 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F));
 				break;
 			case 4:
-				b = new EntityNanoLaserAssult(world, entityplayer, 30f, 20.0F, true);
+				b = new EntityNanoLaserAssault(world, entityplayer, 30f, 2.0F, true);
 				b.DamageTable = ExplosionDamageTable;
 				
 				world.spawnEntityInWorld(b);

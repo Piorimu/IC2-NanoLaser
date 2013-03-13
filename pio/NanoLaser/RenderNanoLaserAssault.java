@@ -9,7 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.util.MathHelper;
 
-public class RenderNanoLaserAssult extends Render {
+public class RenderNanoLaserAssault extends Render {
 	private final double LASER_WEIGHT = 0.1;
 	private final double LASER_LONG = 2.0;
 	private final double LASER_P20 = 0.666;
@@ -22,7 +22,9 @@ public class RenderNanoLaserAssult extends Render {
         Tessellator var10 = Tessellator.instance;
         byte var11 = 1;
         
-        EntityNanoLaserAssult laser = (EntityNanoLaserAssult)par1EntityArrow;
+        EntityNanoLaserAssault laser = (EntityNanoLaserAssault)par1EntityArrow;
+        //if( laser.isHit() ) return;
+        
         float depth = ( laser.maxRange - laser.range );
         if( laser.maxRange != 0 ) depth /= laser.maxRange;
         
