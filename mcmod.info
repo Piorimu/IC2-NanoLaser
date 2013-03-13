@@ -1,0 +1,16 @@
+[
+{
+	"modid": "NanoLaser",
+	"name": "Nano Laser",
+	"description": "Add a mining laser enhanced.",
+	"version": "1.1.0",
+	"credits": "Developers for Industrial Craft 2",
+	"authors": ["Pio"],
+	"logoFile": "",
+	"url": "http://forum.minecraftuser.jp/viewtopic.php?f=13&t=10769",
+	"updateUrl": "",
+	"parent": "",
+	"screenshots": [],
+	"dependencies": []
+}
+]
